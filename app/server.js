@@ -8,7 +8,6 @@ import SessionFileStore from "session-file-store";
 import flash from 'express-flash-message';
 import {IndexController} from './controller/IndexController.js';
 import {UserController} from './controller/UserController.js';
-import {ArticleController} from './controller/ArticleController.js';
 
 // Aktualny adresar
 const __filename = fileURLToPath(import.meta.url);
@@ -20,17 +19,22 @@ initNunjucksEnv(app);
 
 const FileStore = SessionFileStore(sessions);
 
-app.use(sessions({
-    name: "moje.session.id",
-    store: new FileStore({
-        path: './sessions',
-        retries: 0
-    }),
-    secret: "tajne-heslo",
-    saveUninitialized: true,
-    cookie: {maxAge: 1000 * 60 * 60 * 24}, // platnost cookie 1 den
-    resave: true
-}));
+
+app.use(
+    sessions({
+        name: 'ziacka.knizka.session',
+        store: new FileStore({
+            path: './sessions',
+            retries: 0
+        }),
+        secret: 'tajne-heslo',
+        saveUninitialized: false,
+        resave: false,
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 24 // 1 deň
+        }
+    })
+);
 
 app.use(flash({
     sessionKeyName: 'express-flash-message',
@@ -50,8 +54,11 @@ app.use('/', express.static(path.join(__dirname, 'public')))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.get('/', (req, res) => {
+    res.send('Ziacka knizka bezi');
+});
+
 app.use("/", IndexController);
-app.use("/article", ArticleController);
 app.use("/user", UserController);
 
 // ak URL nezodpoveda nicomu uvedenemu zobrazi sa chybove hlasenie

@@ -1,0 +1,17 @@
+{% extends 'layout.html.njk' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12 col-md-8 offset-md-2">
+            <h2>{{ article.title }}</h2>
+            <div class="mb-2">
+                {{ article.content | safe }}
+            </div>
+            <div class="text-end">
+                {{ article.lastUpdate | formatDate('dd. MM. yyyy') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block title %}Index{% endblock %}
