@@ -1,0 +1,12 @@
+GET http://localhost/api/messages
+Accept: application/json
+
+###
+
+POST http://localhost/api/messages
+Content-Type: application/json
+
+{
+  "username": "Ondrej",
+  "message": "Aké je u Vás počasie?"
+}

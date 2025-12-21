@@ -1,0 +1,1 @@
+Do tohto adresara sa budu ukladat uploadovane obrazky.

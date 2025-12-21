@@ -1,0 +1,7 @@
+.idea
+app/node_modules
+app/sessions/*.json
+app/public/uploads/*.jpg
+docker/data
+.env
+*Zone.Identifier

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Express App{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    {% block css %}{% endblock %}
+    {% block headerJS %}{% endblock %}
+</head>
+<body>
+<div class="container">
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"><i class="fa-brands fa-envira"></i> Express</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/article">Články</a>
+                    </li>
+                </ul>
+                {% if user %}
+                    <a class="btn btn-success ms-auto mr-0" href="/user/logout"><i class="fa-solid fa-right-from-bracket"></i> Odhlásiť "{{ user.username }}"</a>
+                {% else %}
+                    <a class="btn btn-success ms-auto mr-0" href="/user/login"><i class="fa-solid fa-right-to-bracket"></i> Prihlásiť sa</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    <div class="row mt-2">
+        <div class="col-12">
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-12">
+            {% for message in getFlashMessages('info') %}
+                <div class="alert alert-info">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            {% for message in getFlashMessages('error') %}
+                <div class="alert alert-danger">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% block content %}{% endblock %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+{% block footerJS %}{% endblock %}
+</body>
+</html>
