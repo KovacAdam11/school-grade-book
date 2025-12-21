@@ -1,4 +1,6 @@
 #!/bin/bash
-sleep infinity
 
-#/usr/local/bin/node /opt/app/server.js
+cd /opt/app
+
+echo "Spúšťam Node server..."
+/usr/local/bin/node server.js
