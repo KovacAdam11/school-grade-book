@@ -1,45 +1,63 @@
 import express from 'express';
-import {authenticate} from '../service/Security.js';
+import bcrypt from 'bcrypt';
+import { dbPool } from '../service/Database.js';
+
 const router = express.Router();
 
 /**
- * Zobazit prihlasovaci formular
+ * Login formulár
  */
-router.get("/login", function (req, res) {
+router.get('/login', (req, res) => {
     res.render('user/login.html.njk');
 });
 
 /**
- * Kontrola prihlasovacich udajov a prihlasenie pouzivatela
+ * Spracovanie loginu
  */
-router.post("/check", async function (req, res) {
-    let user = await authenticate(req.body.username, req.body.password);
-    if (user) {
-        await res.flash('info', 'Boli ste prihlásený.');
-        req.session.user = user;
-        res.redirect('/');
-    } else {
-        console.log('Login failed');
-        await res.flash('error', 'Nesprávne meno alebo heslo.');
-        res.redirect('/user/login');
+router.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    const [rows] = await dbPool.execute(
+        `SELECT u.id, u.username, u.password_hash, r.code AS role
+         FROM users u
+                  JOIN roles r ON r.id = u.role_id
+         WHERE u.username = ?`,
+        [username]
+    );
+
+    if (rows.length === 0) {
+        req.flash('error', 'Nesprávne meno alebo heslo');
+        return res.redirect('/user/login');
     }
+
+    const user = rows[0];
+    const ok = await bcrypt.compare(password, user.password_hash);
+
+    if (!ok) {
+        req.flash('error', 'Nesprávne meno alebo heslo');
+        return res.redirect('/user/login');
+    }
+
+    req.session.user = {
+        id: user.id,
+        username: user.username,
+        role: user.role
+    };
+
+    if (user.role === 'ADMIN') return res.redirect('/admin');
+    if (user.role === 'TEACHER') return res.redirect('/teacher');
+    if (user.role === 'STUDENT') return res.redirect('/student');
+
+    res.redirect('/');
 });
 
 /**
- * Odhlasit pouzivatela
+ * Logout
  */
-router.get("/logout", function (req, res) {
-    let sessionName = req.session.name;
-    req.session.destroy(function(err) {
-        if (err) {
-            console.error(err);
-        } else {
-            console.log('Logout OK');
-            res.clearCookie(sessionName);
-            res.redirect('/');
-        }
+router.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/user/login');
     });
 });
 
-
-export {router as UserController}
+export { router as UserController };

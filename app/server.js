@@ -1,70 +1,86 @@
 import express from 'express';
 import path from 'node:path';
-import fs from 'node:fs';
-import {fileURLToPath} from 'url';
-import {initNunjucksEnv} from './service/TemplateEngine.js';
-import sessions from "express-session";
-import SessionFileStore from "session-file-store";
-import flash from 'express-flash-message';
-import {IndexController} from './controller/IndexController.js';
-import {UserController} from './controller/UserController.js';
+import { fileURLToPath } from 'url';
 
-// Aktualny adresar
+import session from 'express-session';
+import SessionFileStore from 'session-file-store';
+import flash from 'connect-flash';
+
+import { initNunjucksEnv } from './service/TemplateEngine.js';
+import { IndexController } from './controller/IndexController.js';
+import { UserController } from './controller/UserController.js';
+
+// aktuálny adresár
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const FileStore = SessionFileStore(session);
 
+// templating
 initNunjucksEnv(app);
 
-const FileStore = SessionFileStore(sessions);
-
-
+// SESSION (IBA JEDNA)
 app.use(
-    sessions({
+    session({
         name: 'ziacka.knizka.session',
         store: new FileStore({
             path: './sessions',
             retries: 0
         }),
         secret: 'tajne-heslo',
-        saveUninitialized: false,
         resave: false,
+        saveUninitialized: false,
         cookie: {
             maxAge: 1000 * 60 * 60 * 24 // 1 deň
         }
     })
 );
 
-app.use(flash({
-    sessionKeyName: 'express-flash-message',
-}));
+// FLASH
+app.use(flash());
 
-app.use(function(req, res, next) {
+// sprístupnenie flash správ do templates
+app.use((req, res, next) => {
+    res.locals.flash = req.flash();
+    next();
+});
+
+// sprístupnenie usera do templates
+app.use((req, res, next) => {
     res.locals.user = req.session.user;
     next();
 });
 
-// staticky obsah sa bude nachadzat v podadresari public
-// cize aplikacia sa najskor pozrie, ci tam neexistuje subor definvoany v URL
-// adresar public moze obsahovat HTML stranky, JS subory pre klienta, CSS, obrazky, ...
-app.use('/', express.static(path.join(__dirname, 'public')))
+// statické súbory
+app.use('/', express.static(path.join(__dirname, 'public')));
 
-// pridame middelware aby sme mohli spracovat JSON a urlencoded requesty
+// parsovanie requestov
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
-    res.send('Ziacka knizka bezi');
+// routy
+app.use('/', IndexController);
+app.use('/user', UserController);
+
+app.get('/admin', (req, res) => {
+    res.send('ADMIN sekcia');
 });
 
-app.use("/", IndexController);
-app.use("/user", UserController);
+app.get('/teacher', (req, res) => {
+    res.send('TEACHER sekcia');
+});
 
-// ak URL nezodpoveda nicomu uvedenemu zobrazi sa chybove hlasenie
-app.use(function (req, res) {
+app.get('/student', (req, res) => {
+    res.send('STUDENT sekcia');
+});
+
+// 404
+app.use((req, res) => {
     res.status(404).send(`Stránka "${req.url}" neexistuje!`);
 });
 
-// spustenie servera
-app.listen(3000, () => console.log(`Server počúva na adrese: http://localhost:3000`));
+// server
+app.listen(3000, () =>
+    console.log('Server počúva na adrese: http://localhost:3000')
+);

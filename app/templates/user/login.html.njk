@@ -1,20 +1,33 @@
-{% extends 'layout.html.njk' %}
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <title>Prihlásenie</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
 
-{% block content %}
-    <div class="row">
-        <div class="col-4 offset-4">
-            <form action="/user/check" method="post" class="mt-4">
-                <div class="card">
-                    <div class="card-header">Prihláste sa, prosím</div>
-                    <div class="card-body">
-                        <label>Prihlasovacie meno</label>
-                        <input class="form-control" type="text" name="username" placeholder="Zadajte Vaše prihlasovacie meno.">
-                        <label>Heslo</label>
-                        <input class="form-control" type="password" name="password" placeholder="Zadajte Vaše heslo.">
-                        <input class="btn btn-success mt-4 float-end" type="submit" value="Prihlásiť sa">
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-{% endblock %}
+<h2>Prihlásenie</h2>
+
+{% if flash.error %}
+  <div class="alert alert-danger">
+    {{ flash.error[0] }}
+  </div>
+{% endif %}
+
+<form method="post" action="/user/login">
+    <label>
+        Používateľské meno:
+        <input type="text" name="username" required>
+    </label><br><br>
+
+    <label>
+        Heslo:
+        <input type="password" name="password" required>
+    </label><br><br>
+
+    <button type="submit">Prihlásiť</button>
+</form>
+
+</body>
+</html>

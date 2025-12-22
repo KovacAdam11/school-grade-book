@@ -2,12 +2,18 @@ import express from 'express';
 
 const router = express.Router();
 
-/**
- * Úvodná stránka aplikácie
- * (dočasná – neskôr tu bude presmerovanie podľa roly)
- */
 router.get('/', (req, res) => {
-    res.send('Index controller funguje – žiacka knižka beží');
+    if (!req.session.user) {
+        return res.redirect('/user/login');
+    }
+
+    const role = req.session.user.role;
+
+    if (role === 'ADMIN') return res.redirect('/admin');
+    if (role === 'TEACHER') return res.redirect('/teacher');
+    if (role === 'STUDENT') return res.redirect('/student');
+
+    res.send('Neznáma rola');
 });
 
 export { router as IndexController };
