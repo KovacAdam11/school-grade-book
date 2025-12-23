@@ -1,0 +1,28 @@
+{% extends "layout.html.njk" %}
+
+{% block content %}
+<h3>História známok</h3>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Známka</th>
+            <th>Dátum</th>
+            <th>Poznámka</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for g in grades %}
+        <tr>
+            <td>{{ g.grade_value }}</td>
+            <td>{{ g.graded_at | formatDate("dd.MM.yyyy HH:mm") }}</td>
+            <td>{{ g.note or '-' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="javascript:history.back()" class="btn btn-secondary">
+    Späť
+</a>
+{% endblock %}

@@ -36,7 +36,24 @@ router.get('/', async (req, res) => {
     );
 
     res.render('teacher/dashboard.html.njk', {
-        items: rows
+        subjects: rows
+    });
+});
+
+router.get('/enrollment/:id/grades', async (req, res) => {
+    if (!requireTeacher(req, res)) return;
+
+    const enrollmentId = Number(req.params.id);
+
+    const [grades] = await dbPool.execute(`
+        SELECT grade_value, graded_at, note
+        FROM grades
+        WHERE enrollment_id = ?
+        ORDER BY graded_at DESC, id DESC
+    `, [enrollmentId]);
+
+    res.render('teacher/grades_history.html.njk', {
+        grades
     });
 });
 

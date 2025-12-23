@@ -17,12 +17,11 @@
         {% for cs in subjects %}
         <tr>
             <td>{{ cs.grade_year }}.{{ cs.name_letter }}</td>
-            <td>{{ cs.subject }}</td>
+            <td>{{ cs.subject_name }}</td>
             <td>
-                <a href="/teacher/grades/{{ cs.class_subject_id }}"
-                   class="btn btn-primary btn-sm">
-                    Zobraziť známky
-                </a>
+                <a href="/teacher/class-subject/{{ cs.class_subject_id }}" class="btn btn-primary">
+		    Zobraziť známky
+		</a>
             </td>
         </tr>
         {% endfor %}
