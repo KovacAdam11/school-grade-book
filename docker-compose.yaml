@@ -1,19 +1,15 @@
 services:
   node:
     container_name: ziacka_knizka
-
     build:
       context: ./docker/build/node_js
-
     environment:
       DB_HOST: school-db
       DB_DATABASE: school
       DB_USER: school
       DB_PASSWORD: ${DB_USER_PWD}
-
     volumes:
       - ./app:/opt/app
-
     ports:
       - "3000:3000"
 
@@ -31,7 +27,7 @@ services:
         aliases:
           - school-db
     ports:
-       - "33996:3306"
+      - "33996:3306"
     volumes:
       - ./docker/data/mariadb:/var/lib/mysql:delegated
       - ./docker/build/mariadb/init_school.sql:/docker-entrypoint-initdb.d/init_school.sql
@@ -41,7 +37,16 @@ services:
     ports:
       - "8080:80"
     environment:
-      - PMA_ARBITRARY=0
-      - PMA_HOST=school-db
+      PMA_ARBITRARY: 0
+      PMA_HOST: school-db
 
-
+  smtp:
+    image: rnwood/smtp4dev
+    container_name: smtp4dev
+    ports:
+      - "3001:80"
+      - "2525:25"
+    networks:
+      default:
+        aliases:
+          - smtp

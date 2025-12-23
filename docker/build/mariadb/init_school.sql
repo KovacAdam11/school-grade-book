@@ -127,31 +127,100 @@ SET @HASH := '$2b$10$2c8aGVtJKMYzd5i296AbxOisitdFuGoEA9Z7R4s7g734Fzd/L31TG';
 INSERT INTO users (username,password_hash,first_name,last_name,email,role_id)
 VALUES ('admin',@HASH,'Admin','Skoly','admin@school.local',1);
 
--- TEACHERS (12)
 INSERT INTO users (username,password_hash,first_name,last_name,email,role_id)
-SELECT CONCAT('t',LPAD(n,2,'0')),@HASH,'Ucitel','Ucitel',
-       CONCAT('t',LPAD(n,2,'0'),'@school.local'),2
-FROM (
-  SELECT 1 n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION
-  SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION
-  SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12
-) x;
+SELECT
+  CONCAT('t', LPAD(n.n, 2, '0')),
+  @HASH,
 
--- STUDENTS (10 na triedu = 120)
+  -- KRSTNÉ MENO (permutované)
+  CASE
+    WHEN MOD(n.n, 2) = 1 THEN
+      ELT(((n.n * 7) MOD 12) + 1,
+        'Ján','Peter','Marek','Tomáš',
+        'Michal','Roman','Andrej','Martin',
+        'Filip','Lukáš','Daniel','Igor'
+      )
+    ELSE
+      ELT(((n.n * 7) MOD 12) + 1,
+        'Anna','Eva','Lucia','Petra',
+        'Martina','Jana','Zuzana','Veronika',
+        'Katarína','Monika','Simona','Lenka'
+      )
+  END,
+
+  -- PRIEZVISKO (rovnaká permutácia → sedí rod)
+  CASE
+    WHEN MOD(n.n, 2) = 1 THEN
+      ELT(((n.n * 7) MOD 12) + 1,
+        'Novák','Kováč','Horváth','Varga',
+        'Molnár','Tóth','Hudák','Polák',
+        'Baláž','Šimko','Král','Urban'
+      )
+    ELSE
+      ELT(((n.n * 7) MOD 12) + 1,
+        'Nováková','Kováčová','Horváthová','Vargová',
+        'Molnárová','Tóthová','Hudáková','Poláková',
+        'Balážová','Šimková','Králová','Urbanová'
+      )
+  END,
+
+  CONCAT('t', LPAD(n.n, 2, '0'), '@school.local'),
+  (SELECT id FROM roles WHERE code='TEACHER')
+
+FROM (
+  SELECT 1 n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+  UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8
+  UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12
+) n;
+
+-- STUDENTS (10 na triedu) – nezávislé miešanie mien a priezvisk
 INSERT INTO users (username,password_hash,first_name,last_name,email,role_id,class_id)
 SELECT
   CONCAT('s', c.grade_year, LOWER(c.name_letter), LPAD(n.n,2,'0')),
   @HASH,
-  'Student',
-  CONCAT(c.grade_year, c.name_letter, LPAD(n.n,2,'0')),
+
+  /* KRSTNÉ MENO – index A */
+  CASE
+    WHEN MOD(n.n, 2) = 1 THEN
+      ELT(((n.n * 5 + c.id * 7) MOD 12) + 1,
+        'Adam','Peter','Martin','Tomáš',
+        'Jakub','Marek','Lukáš','Filip',
+        'Michal','Daniel','Samuel','Oliver'
+      )
+    ELSE
+      ELT(((n.n * 5 + c.id * 7) MOD 12) + 1,
+        'Anna','Eva','Lucia','Petra',
+        'Martina','Jana','Zuzana','Veronika',
+        'Katarína','Monika','Simona','Lenka'
+      )
+  END,
+
+  /* PRIEZVISKO – index B (ÚMYSELNE INÝ) */
+  CASE
+    WHEN MOD(n.n, 2) = 1 THEN
+      ELT(((n.n * 11 + c.id * 3) MOD 12) + 1,
+        'Novák','Kováč','Horváth','Varga',
+        'Molnár','Tóth','Hudák','Polák',
+        'Baláž','Šimko','Král','Urban'
+      )
+    ELSE
+      ELT(((n.n * 11 + c.id * 3) MOD 12) + 1,
+        'Nováková','Kováčová','Horváthová','Vargová',
+        'Molnárová','Tóthová','Hudáková','Poláková',
+        'Balážová','Šimková','Králová','Urbanová'
+      )
+  END,
+
   CONCAT('s', c.grade_year, LOWER(c.name_letter), LPAD(n.n,2,'0'), '@school.local'),
   (SELECT id FROM roles WHERE code='STUDENT'),
   c.id
+
 FROM classes c
 JOIN (
   SELECT 1 n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
   UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10
 ) n;
+
 
 -- SUBJECTS
 INSERT INTO subjects (name) VALUES

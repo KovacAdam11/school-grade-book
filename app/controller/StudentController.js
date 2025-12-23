@@ -25,8 +25,20 @@ router.get('/', async (req, res) => {
         ORDER BY sub.name, g.graded_at
     `, [req.session.user.id]);
 
+    // zoskupenie známok podľa predmetu
+    const groupedGrades = {};
+
+    for (const g of rows) {
+        if (!groupedGrades[g.subject]) {
+            groupedGrades[g.subject] = [];
+        }
+        if (g.grade_value) {
+            groupedGrades[g.subject].push(g);
+        }
+    }
+
     res.render('student/index.html.njk', {
-        grades: rows
+        groupedGrades
     });
 });
 
