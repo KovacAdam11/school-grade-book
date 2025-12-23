@@ -37,6 +37,8 @@ http://localhost:3000 – webová aplikácia
 
 http://localhost:8080 – phpMyAdmin
 
+http://localhost:3001 – smtp4dev (emailové notifikácie)
+
 ---
 
 ## Testovacie účty
@@ -69,6 +71,8 @@ Učiteľ
 Žiak
 - vidí svoje predmety a pridelené známky
 
+---
+
 ## Databáza
 Databáza sa inicializuje automaticky pri prvom spustení MariaDB kontajnera.
 
@@ -86,6 +90,27 @@ Testovacie dáta sú generované deterministicky priamo v SQL skripte:
 
 - docker/build/mariadb/init_school.sql
 
+---
+
+## Emailové notifikácie (bonusová úloha)
+
+Po zadaní známky učiteľom je žiakovi automaticky odoslaná emailová notifikácia, ktorá obsahuje:
+
+- predmet
+
+- triedu
+
+- známku
+
+- dátum a čas pridania
+
+- poznámku (ak bola zadaná)
+
+Pre testovanie odosielania emailov je použitý kontajner smtp4dev.
+Emailové správy je možné sledovať v prehliadači na adrese:
+
+---
+
 ## Databázový model
 Diagram databázových tabuliek je vytvorený pomocou phpMyAdmin
 a je priložený ako obrázok.
@@ -93,6 +118,8 @@ a je priložený ako obrázok.
 ![Databázový diagram](docs/school_DB.png)
 
 docs/school_DB.png
+
+---
 
 ## Poznámka k vývoju
 Pri zmene SQL inicializačného skriptu je potrebné zmazať databázové dáta:
