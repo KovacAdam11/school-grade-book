@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin – používatelia</title>
+</head>
+<body>
+
+<h1>Admin – zoznam používateľov</h1>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Meno</th>
+        <th>Priezvisko</th>
+        <th>Rola</th>
+        <th>Trieda</th>
+    </tr>
+
+    {% for u in users %}
+    <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.first_name }}</td>
+        <td>{{ u.last_name }}</td>
+        <td>{{ u.role }}</td>
+        <td>
+            {% if u.grade_year %}
+                {{ u.grade_year }}.{{ u.name_letter }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+<h1>
+    {{ classSubject.subject_name }} — {{ classSubject.grade_year }}.{{ classSubject.name_letter }}
+</h1>
+
+<p>
+    <a href="/teacher">← späť na moje predmety</a>
+</p>
+
+<table border="1" cellpadding="6">
+    <tr>
+        <th>Žiak</th>
+        <th>Posledná známka</th>
+        <th>Dátum</th>
+        <th>Pridať známku</th>
+    </tr>
+
+    {% for s in students %}
+        <tr>
+            <td>{{ s.last_name }} {{ s.first_name }}</td>
+            <td>{{ s.last_grade or '-' }}</td>
+            <td>{{ s.last_graded_at or '-' }}</td>
+            <td>
+                <form method="post" action="/teacher/grade/add" style="display:flex; gap:6px; align-items:center;">
+                    <input type="hidden" name="enrollment_id" value="{{ s.enrollment_id }}">
+
+                    <select name="grade_value" required>
+                        <option value="">Známka</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+
+                    <input type="text" name="note" placeholder="Poznámka (voliteľné)" />
+
+                    <button type="submit">Pridať</button>
+                </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="4">Na tento predmet nie sú prihlásení žiadni žiaci.</td>
+        </tr>
+    {% endfor %}
+</table>

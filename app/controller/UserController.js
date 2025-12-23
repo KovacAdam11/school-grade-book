@@ -15,6 +15,8 @@ router.get('/login', (req, res) => {
  * Spracovanie loginu
  */
 router.post('/login', async (req, res) => {
+    console.log('LOGIN BODY:', req.body);
+
     const { username, password } = req.body;
 
     const [rows] = await dbPool.execute(
@@ -38,18 +40,23 @@ router.post('/login', async (req, res) => {
         return res.redirect('/user/login');
     }
 
+    // uloženie do session
     req.session.user = {
         id: user.id,
         username: user.username,
         role: user.role
     };
 
-    if (user.role === 'ADMIN') return res.redirect('/admin');
-    if (user.role === 'TEACHER') return res.redirect('/teacher');
-    if (user.role === 'STUDENT') return res.redirect('/student');
+    // 🔥 DÔLEŽITÉ: počkaj na uloženie session
+    req.session.save(() => {
+        if (user.role === 'ADMIN') return res.redirect('/admin');
+        if (user.role === 'TEACHER') return res.redirect('/teacher');
+        if (user.role === 'STUDENT') return res.redirect('/student');
 
-    res.redirect('/');
+        res.redirect('/');
+    });
 });
+
 
 /**
  * Logout

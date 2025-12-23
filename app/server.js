@@ -9,6 +9,9 @@ import flash from 'connect-flash';
 import { initNunjucksEnv } from './service/TemplateEngine.js';
 import { IndexController } from './controller/IndexController.js';
 import { UserController } from './controller/UserController.js';
+import { StudentController } from './controller/StudentController.js';
+import { TeacherController } from './controller/TeacherController.js';
+import { AdminController } from './controller/AdminController.js';
 
 // aktuálny adresár
 const __filename = fileURLToPath(import.meta.url);
@@ -19,6 +22,10 @@ const FileStore = SessionFileStore(session);
 
 // templating
 initNunjucksEnv(app);
+
+// parsovanie requestov (MUSÍ BYŤ PRED ROUTAMI!)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // SESSION (IBA JEDNA)
 app.use(
@@ -55,25 +62,12 @@ app.use((req, res, next) => {
 // statické súbory
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-// parsovanie requestov
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 // routy
-app.use('/', IndexController);
 app.use('/user', UserController);
-
-app.get('/admin', (req, res) => {
-    res.send('ADMIN sekcia');
-});
-
-app.get('/teacher', (req, res) => {
-    res.send('TEACHER sekcia');
-});
-
-app.get('/student', (req, res) => {
-    res.send('STUDENT sekcia');
-});
+app.use('/student', StudentController);
+app.use('/teacher', TeacherController);
+app.use('/', AdminController);
+app.use('/', IndexController);
 
 // 404
 app.use((req, res) => {

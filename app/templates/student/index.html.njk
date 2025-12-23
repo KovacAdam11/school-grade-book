@@ -1,0 +1,19 @@
+<h1>Moje známky</h1>
+
+<table border="1" cellpadding="6">
+    <tr>
+        <th>Predmet</th>
+        <th>Známka</th>
+        <th>Dátum</th>
+        <th>Poznámka</th>
+    </tr>
+
+    {% for g in grades %}
+        <tr>
+            <td>{{ g.subject }}</td>
+            <td>{{ g.grade_value or '-' }}</td>
+            <td>{{ g.graded_at or '-' }}</td>
+            <td>{{ g.note or '' }}</td>
+        </tr>
+    {% endfor %}
+</table>

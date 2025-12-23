@@ -1,0 +1,25 @@
+<h1>Moje predmety</h1>
+
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Trieda</th>
+        <th>Predmet</th>
+        <th>Akcia</th>
+    </tr>
+
+    {% for item in items %}
+        <tr>
+            <td>{{ item.grade_year }}.{{ item.name_letter }}</td>
+            <td>{{ item.subject_name }}</td>
+            <td>
+                <a href="/teacher/class-subject/{{ item.class_subject_id }}">
+                    Zobraziť žiakov
+                </a>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="3">Nemáte priradené žiadne predmety.</td>
+        </tr>
+    {% endfor %}
+</table>
