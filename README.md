@@ -99,6 +99,6 @@ Pri zmene SQL inicializačného skriptu je potrebné zmazať databázové dáta:
 
 ```bash
 docker compose down
-rm -rf docker/data/mariadb
+rmdir docker\data\mariadb -Recurse -Force
 docker compose up --build
 
