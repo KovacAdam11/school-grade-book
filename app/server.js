@@ -49,7 +49,9 @@ app.use(flash());
 
 // sprístupnenie flash správ do templates
 app.use((req, res, next) => {
-    res.locals.flash = req.flash();
+    const flashMessages = req.flash();
+    res.locals.flash = flashMessages;
+    app.locals.flash = flashMessages;
     next();
 });
 
@@ -66,7 +68,7 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 app.use('/user', UserController);
 app.use('/student', StudentController);
 app.use('/teacher', TeacherController);
-app.use('/', AdminController);
+app.use('/admin', AdminController);
 app.use('/', IndexController);
 
 // 404

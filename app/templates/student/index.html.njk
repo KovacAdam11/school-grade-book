@@ -1,19 +1,41 @@
-<h1>Moje známky</h1>
+{% extends "layout.html.njk" %}
+{% block title %}Moje známky{% endblock %}
 
-<table border="1" cellpadding="6">
-    <tr>
-        <th>Predmet</th>
-        <th>Známka</th>
-        <th>Dátum</th>
-        <th>Poznámka</th>
-    </tr>
+{% block content %}
 
-    {% for g in grades %}
+<h2>Moje známky</h2>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Predmet</th>
+            <th>Známka</th>
+            <th>Dátum</th>
+            <th>Poznámka</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for g in grades %}
         <tr>
             <td>{{ g.subject }}</td>
-            <td>{{ g.grade_value or '-' }}</td>
-            <td>{{ g.graded_at or '-' }}</td>
-            <td>{{ g.note or '' }}</td>
+            <td>
+                {% if g.grade_value %}
+                    {{ g.grade_value }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>
+                {% if g.graded_at %}
+                    {{ g.graded_at | formatDate("dd.MM.yyyy") }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>{{ g.note or '-' }}</td>
         </tr>
-    {% endfor %}
+        {% endfor %}
+    </tbody>
 </table>
+
+{% endblock %}

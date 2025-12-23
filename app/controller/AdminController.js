@@ -9,7 +9,7 @@ const router = express.Router();
  */
 router.get('/admin', async (req, res) => {
     const [users] = await dbPool.execute(`
-        SELECT 
+        SELECT
             u.id,
             u.username,
             u.first_name,
@@ -18,8 +18,8 @@ router.get('/admin', async (req, res) => {
             c.grade_year,
             c.name_letter
         FROM users u
-        JOIN roles r ON r.id = u.role_id
-        LEFT JOIN classes c ON c.id = u.class_id
+                 JOIN roles r ON r.id = u.role_id
+                 LEFT JOIN classes c ON c.id = u.class_id
         ORDER BY u.id
     `);
 
@@ -35,6 +35,59 @@ router.get('/admin/user/create', async (req, res) => {
 
     res.render('admin/create_user.html.njk', { roles, classes });
 });
+
+// Prehľad tried
+router.get('/classes', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'ADMIN') {
+        return res.redirect('/user/login');
+    }
+
+    const [rows] = await dbPool.execute(`
+        SELECT
+            c.id,
+            c.grade_year,
+            c.name_letter,
+            COUNT(u.id) AS student_count
+        FROM classes c
+                 LEFT JOIN users u
+                           ON u.class_id = c.id
+                               AND u.role_id = (SELECT id FROM roles WHERE code='STUDENT')
+        GROUP BY c.id
+        ORDER BY c.grade_year, c.name_letter
+    `);
+
+    res.render('admin/classes.html.njk', {
+        classes: rows
+    });
+});
+
+// Admin dashboard
+// Admin – zoznam používateľov (hlavná admin stránka)
+router.get('/', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'ADMIN') {
+        return res.redirect('/user/login');
+    }
+
+    const [users] = await dbPool.execute(`
+        SELECT
+            u.id,
+            u.username,
+            u.first_name,
+            u.last_name,
+            r.code AS role,
+            c.grade_year,
+            c.name_letter
+        FROM users u
+                 JOIN roles r ON r.id = u.role_id
+                 LEFT JOIN classes c ON c.id = u.class_id
+        ORDER BY r.code, u.username
+    `);
+
+    res.render('admin/users.html.njk', {
+        users
+    });
+});
+
 
 /**
  * ADMIN – uloženie používateľa
@@ -55,9 +108,9 @@ router.post('/admin/user/create', async (req, res) => {
 
     await dbPool.execute(
         `
-        INSERT INTO users
-        (username, password_hash, first_name, last_name, email, role_id, class_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO users
+            (username, password_hash, first_name, last_name, email, role_id, class_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `,
         [
             username,

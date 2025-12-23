@@ -1,40 +1,39 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Admin – používatelia</title>
-</head>
-<body>
+{% extends "layout.html.njk" %}
+{% block title %}Admin – používatelia{% endblock %}
+
+{% block content %}
 
 <h1>Admin – zoznam používateľov</h1>
 
-<table border="1">
-    <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Meno</th>
-        <th>Priezvisko</th>
-        <th>Rola</th>
-        <th>Trieda</th>
-    </tr>
-
-    {% for u in users %}
-    <tr>
-        <td>{{ u.id }}</td>
-        <td>{{ u.username }}</td>
-        <td>{{ u.first_name }}</td>
-        <td>{{ u.last_name }}</td>
-        <td>{{ u.role }}</td>
-        <td>
-            {% if u.grade_year %}
-                {{ u.grade_year }}.{{ u.name_letter }}
-            {% else %}
-                -
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Meno</th>
+            <th>Priezvisko</th>
+            <th>Rola</th>
+            <th>Trieda</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.first_name }}</td>
+            <td>{{ u.last_name }}</td>
+            <td>{{ u.role }}</td>
+            <td>
+                {% if u.grade_year %}
+                    {{ u.grade_year }}.{{ u.name_letter }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 
-</body>
-</html>
+{% endblock %}

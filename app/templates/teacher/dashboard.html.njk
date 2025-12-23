@@ -1,25 +1,32 @@
-<h1>Moje predmety</h1>
+{% extends "layout.html.njk" %}
+{% block title %}Učiteľ – dashboard{% endblock %}
 
-<table border="1" cellpadding="5">
-    <tr>
-        <th>Trieda</th>
-        <th>Predmet</th>
-        <th>Akcia</th>
-    </tr>
+{% block content %}
 
-    {% for item in items %}
+<h2>Moje predmety v triedach</h2>
+
+<table class="table table-striped table-bordered">
+    <thead>
         <tr>
-            <td>{{ item.grade_year }}.{{ item.name_letter }}</td>
-            <td>{{ item.subject_name }}</td>
+            <th>Trieda</th>
+            <th>Predmet</th>
+            <th>Akcia</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cs in subjects %}
+        <tr>
+            <td>{{ cs.grade_year }}.{{ cs.name_letter }}</td>
+            <td>{{ cs.subject }}</td>
             <td>
-                <a href="/teacher/class-subject/{{ item.class_subject_id }}">
-                    Zobraziť žiakov
+                <a href="/teacher/grades/{{ cs.class_subject_id }}"
+                   class="btn btn-primary btn-sm">
+                    Zobraziť známky
                 </a>
             </td>
         </tr>
-    {% else %}
-        <tr>
-            <td colspan="3">Nemáte priradené žiadne predmety.</td>
-        </tr>
-    {% endfor %}
+        {% endfor %}
+    </tbody>
 </table>
+
+{% endblock %}

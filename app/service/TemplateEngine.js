@@ -1,8 +1,8 @@
-import {format, parse} from 'date-fns';
+import { format } from 'date-fns';
 import nunjucks from 'nunjucks';
 import { statSync } from 'fs';
-import {fileURLToPath} from "url";
-import path from "path";
+import { fileURLToPath } from 'url';
+import path from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,9 +13,8 @@ function initNunjucksEnv(app) {
         autoescape: true,
         noCache: process.env.NODE_ENV !== 'prod',
         express: app
-    })
+    });
 
-    // Zaregistrovat filter pre formatovanie datumov
     templateEnv.addFilter('formatDate', function (date, dateFormat) {
         try {
             return format(date, dateFormat);
@@ -24,26 +23,26 @@ function initNunjucksEnv(app) {
         }
     });
 
-    // Custom filter pre zistovanie ake roly ma pridelene pouziatel
     templateEnv.addFilter('is_granted', (user, role) => {
         if (!user) return false;
-        return user.roles ? user.roles.includes(role) : false;
+        return user.role === role;
     }, false);
 
-    // Custom filter ktory zisti, ci existuje subor s definovanym nazvom v adresari public/uploads
     templateEnv.addFilter('img_exists', (articleId) => {
-        let filename = path.join(__dirname, '../public/uploads/') + '/' + articleId + '.jpg';
+        const filename = path.join(__dirname, '../public/uploads/', `${articleId}.jpg`);
         try {
             statSync(filename);
-
             return true;
         } catch {
-
             return false;
         }
-
     }, false);
+
+    templateEnv.addGlobal('getFlashMessages', (type) => {
+        return app.locals.flash?.[type] || [];
+    });
+
+    return templateEnv;
 }
 
-
-export {initNunjucksEnv};
+export { initNunjucksEnv };

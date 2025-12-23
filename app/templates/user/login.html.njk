@@ -1,33 +1,64 @@
-<!DOCTYPE html>
-<html lang="sk">
-<head>
-    <meta charset="UTF-8">
-    <title>Prihlásenie</title>
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
+{% extends "layout.html.njk" %}
+{% block title %}Prihlásenie{% endblock %}
 
-<h2>Prihlásenie</h2>
+{% block content %}
 
-{% if flash.error %}
-  <div class="alert alert-danger">
-    {{ flash.error[0] }}
-  </div>
-{% endif %}
+<div class="row justify-content-center">
+    <div class="col-md-4">
 
-<form method="post" action="/user/login">
-    <label>
-        Používateľské meno:
-        <input type="text" name="username" required>
-    </label><br><br>
+        <div class="card shadow-sm">
+            <div class="card-body">
 
-    <label>
-        Heslo:
-        <input type="password" name="password" required>
-    </label><br><br>
+                <h3 class="card-title text-center mb-4">
+                    Prihlásenie
+                </h3>
 
-    <button type="submit">Prihlásiť</button>
-</form>
+                {% if flash.error %}
+                    <div class="alert alert-danger">
+                        {{ flash.error[0] }}
+                    </div>
+                {% endif %}
 
-</body>
-</html>
+                <form method="post" action="/user/login">
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            Používateľské meno
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="username"
+                            name="username"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            Heslo
+                        </label>
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="password"
+                            name="password"
+                            required
+                        >
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            Prihlásiť sa
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
