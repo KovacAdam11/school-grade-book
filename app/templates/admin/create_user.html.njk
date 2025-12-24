@@ -1,0 +1,67 @@
+{% extends "layout.html.njk" %}
+{% block title %}Vytvoriť používateľa{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">Vytvoriť používateľa</h2>
+
+<form method="post" action="/admin/user/create" class="row g-3">
+
+    <div class="col-md-4">
+        <label class="form-label">Používateľské meno</label>
+        <input type="text" name="username" class="form-control" required>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Heslo</label>
+        <input type="password" name="password" class="form-control" required>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control">
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Meno</label>
+        <input type="text" name="first_name" class="form-control" required>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Priezvisko</label>
+        <input type="text" name="last_name" class="form-control" required>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Rola</label>
+        <select name="role_id" class="form-select" required>
+            {% for r in roles %}
+                <option value="{{ r.id }}">{{ r.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Trieda (len pre žiaka)</label>
+        <select name="class_id" class="form-select">
+            <option value="">— bez triedy —</option>
+            {% for c in classes %}
+                <option value="{{ c.id }}">
+                    {{ c.grade_year }}.{{ c.name_letter }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-12">
+        <button class="btn btn-success">
+            Vytvoriť používateľa
+        </button>
+        <a href="/admin" class="btn btn-secondary ms-2">
+            Späť
+        </a>
+    </div>
+
+</form>
+
+{% endblock %}

@@ -3,10 +3,16 @@
 
 {% block content %}
 
-<h1>Admin – zoznam používateľov</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Admin – zoznam používateľov</h1>
 
-<table class="table table-striped table-bordered">
-    <thead>
+    <a href="/admin/user/create" class="btn btn-success">
+        + Nový používateľ
+    </a>
+</div>
+
+<table class="table table-striped table-bordered align-middle">
+    <thead class="table-light">
         <tr>
             <th>ID</th>
             <th>Username</th>
@@ -14,9 +20,11 @@
             <th>Priezvisko</th>
             <th>Rola</th>
             <th>Trieda</th>
+            <th style="width: 180px;">Akcie</th>
         </tr>
     </thead>
     <tbody>
+
         {% for u in users %}
         <tr>
             <td>{{ u.id }}</td>
@@ -31,8 +39,40 @@
                     -
                 {% endif %}
             </td>
+
+            <!-- AKCIE -->
+            <td class="text-center">
+                <a href="/admin/user/{{ u.id }}/edit"
+                   class="btn btn-sm btn-primary me-1">
+                    Upraviť
+                </a>
+
+                {% if u.role == 'ADMIN' %}
+                    <button class="btn btn-sm btn-secondary" disabled
+                            title="Administrátora nie je možné zmazať">
+                        Zmazať
+                    </button>
+                {% else %}
+                    <form method="post"
+                          action="/admin/user/{{ u.id }}/delete"
+                          style="display:inline"
+                          onsubmit="return confirm('Naozaj chceš zmazať používateľa {{ u.username }}?');">
+                        <button class="btn btn-sm btn-danger">
+                            Zmazať
+                        </button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+
+        {% else %}
+        <tr>
+            <td colspan="7" class="text-center text-muted py-4">
+                Žiadni používatelia
+            </td>
         </tr>
         {% endfor %}
+
     </tbody>
 </table>
 

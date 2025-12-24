@@ -1,0 +1,103 @@
+{% extends "layout.html.njk" %}
+{% block title %}Predmety v triedach{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">Predmety v triedach</h2>
+
+<!-- FORMULÁR NA PRIRADENIE -->
+<div class="card mb-4">
+    <div class="card-header fw-bold">
+        Priradiť predmet k triede
+    </div>
+
+    <div class="card-body">
+        <form method="post" action="/admin/class-subjects" class="row g-3">
+
+            <!-- TRIEDA -->
+            <div class="col-md-3">
+                <label class="form-label">Trieda</label>
+                <select name="class_id" class="form-select" required>
+                    <option value="">— vyber triedu —</option>
+                    {% for c in classes %}
+                        <option value="{{ c.id }}">
+                            {{ c.grade_year }}.{{ c.name_letter }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- PREDMET -->
+            <div class="col-md-4">
+                <label class="form-label">Predmet</label>
+                <select name="subject_id" class="form-select" required>
+                    <option value="">— vyber predmet —</option>
+                    {% for s in subjects %}
+                        <option value="{{ s.id }}">
+                            {{ s.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- UČITEĽ -->
+            <div class="col-md-4">
+                <label class="form-label">Učiteľ</label>
+                <select name="teacher_id" class="form-select" required>
+                    <option value="">— vyber učiteľa —</option>
+                    {% for t in teachers %}
+                        <option value="{{ t.id }}">
+                            {{ t.first_name }} {{ t.last_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- TLAČIDLO -->
+            <div class="col-md-1 d-flex align-items-end">
+                <button class="btn btn-success w-100">
+                    Uložiť
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- TABUĽKA PRIRADENÍ -->
+<div class="card">
+    <div class="card-header fw-bold">
+        Existujúce priradenia
+    </div>
+
+    <div class="card-body p-0">
+        <table class="table table-striped table-bordered mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Trieda</th>
+                    <th>Predmet</th>
+                    <th>Učiteľ</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for cs in classSubjects %}
+                    <tr>
+                        <td>{{ cs.class_name }}</td>
+                        <td>{{ cs.subject_name }}</td>
+                        <td>{{ cs.teacher_name }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center text-muted py-4">
+                            Zatiaľ neexistujú žiadne priradenia
+                        </td>
+                    </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
