@@ -13,12 +13,26 @@ function requireTeacher(req, res) {
 }
 
 /**
+ * Helper – bezpečný sort
+ */
+function getSort(req, allowed, defaultCol) {
+    const sort = allowed[req.query.sort] || defaultCol;
+    const dir = req.query.dir === 'desc' ? 'DESC' : 'ASC';
+    return { sort, dir };
+}
+
+/**
  * Teacher dashboard – moje predmety
  */
 router.get('/', async (req, res) => {
     if (!requireTeacher(req, res)) return;
 
     const teacherId = req.session.user.id;
+
+    const { sort, dir } = getSort(req, {
+        grade_year: 'c.grade_year',
+        subject_name: 's.name'
+    }, 'c.grade_year');
 
     const [rows] = await dbPool.execute(
         `
@@ -28,16 +42,18 @@ router.get('/', async (req, res) => {
                 c.name_letter,
                 s.name AS subject_name
             FROM class_subjects cs
-                     JOIN classes c ON c.id = cs.class_id
-                     JOIN subjects s ON s.id = cs.subject_id
+                JOIN classes c ON c.id = cs.class_id
+                JOIN subjects s ON s.id = cs.subject_id
             WHERE cs.teacher_id = ?
-            ORDER BY c.grade_year, c.name_letter, s.name
+            ORDER BY ${sort} ${dir}, c.name_letter
         `,
         [teacherId]
     );
 
     res.render('teacher/dashboard.html.njk', {
-        subjects: rows
+        subjects: rows,
+        sort,
+        dir
     });
 });
 
@@ -49,18 +65,25 @@ router.get('/enrollment/:id/grades', async (req, res) => {
 
     const enrollmentId = Number(req.params.id);
 
+    const { sort, dir } = getSort(req, {
+        grade_value: 'grade_value',
+        graded_at: 'graded_at'
+    }, 'graded_at');
+
     const [grades] = await dbPool.execute(
         `
             SELECT grade_value, graded_at, note
             FROM grades
             WHERE enrollment_id = ?
-            ORDER BY graded_at DESC, id DESC
+            ORDER BY ${sort} ${dir}, id DESC
         `,
         [enrollmentId]
     );
 
     res.render('teacher/grades_history.html.njk', {
-        grades
+        grades,
+        sort,
+        dir
     });
 });
 
@@ -94,6 +117,12 @@ router.get('/class-subject/:id', async (req, res) => {
         return res.redirect('/teacher');
     }
 
+    const { sort, dir } = getSort(req, {
+        last_name: 'u.last_name',
+        last_grade: 'last_grade',
+        last_graded_at: 'last_graded_at'
+    }, 'u.last_name');
+
     const [students] = await dbPool.execute(
         `
             SELECT
@@ -105,26 +134,28 @@ router.get('/class-subject/:id', async (req, res) => {
                     FROM grades g
                     WHERE g.enrollment_id = e.id
                     ORDER BY g.graded_at DESC, g.id DESC
-                        LIMIT 1
+                    LIMIT 1
                 ) AS last_grade,
-            (
-              SELECT g.graded_at
-              FROM grades g
-              WHERE g.enrollment_id = e.id
-              ORDER BY g.graded_at DESC, g.id DESC
-              LIMIT 1
-            ) AS last_graded_at
+                (
+                    SELECT g.graded_at
+                    FROM grades g
+                    WHERE g.enrollment_id = e.id
+                    ORDER BY g.graded_at DESC, g.id DESC
+                    LIMIT 1
+                ) AS last_graded_at
             FROM enrollments e
                 JOIN users u ON u.id = e.student_id
             WHERE e.class_subject_id = ?
-            ORDER BY u.last_name, u.first_name
+            ORDER BY ${sort} ${dir}, u.first_name
         `,
         [classSubjectId]
     );
 
     res.render('teacher/class_subject.html.njk', {
         classSubject: cs,
-        students
+        students,
+        sort,
+        dir
     });
 });
 
@@ -145,7 +176,6 @@ router.post('/grade/add', async (req, res) => {
     }
 
     try {
-        //uloženie známky
         await dbPool.execute(
             `
                 INSERT INTO grades (enrollment_id, teacher_id, grade_value, note)
@@ -154,23 +184,24 @@ router.post('/grade/add', async (req, res) => {
             [enrollmentId, teacherId, gradeValue, note || null]
         );
 
-        //údaje pre email
-        const [[info]] = await dbPool.execute(`
-            SELECT
-                u.email,
-                CONCAT(u.first_name, ' ', u.last_name) AS student_name,
-                s.name AS subject_name,
-                CONCAT(c.grade_year, '.', c.name_letter) AS class_name,
-                NOW() AS graded_at
-            FROM enrollments e
-                     JOIN users u ON u.id = e.student_id
-                     JOIN class_subjects cs ON cs.id = e.class_subject_id
-                     JOIN classes c ON c.id = cs.class_id
-                     JOIN subjects s ON s.id = cs.subject_id
-            WHERE e.id = ?
-        `, [enrollmentId]);
+        const [[info]] = await dbPool.execute(
+            `
+                SELECT
+                    u.email,
+                    CONCAT(u.first_name, ' ', u.last_name) AS student_name,
+                    s.name AS subject_name,
+                    CONCAT(c.grade_year, '.', c.name_letter) AS class_name,
+                    NOW() AS graded_at
+                FROM enrollments e
+                         JOIN users u ON u.id = e.student_id
+                         JOIN class_subjects cs ON cs.id = e.class_subject_id
+                         JOIN classes c ON c.id = cs.class_id
+                         JOIN subjects s ON s.id = cs.subject_id
+                WHERE e.id = ?
+            `,
+            [enrollmentId]
+        );
 
-        //odoslanie emailu
         if (info?.email) {
             await sendGradeMail({
                 to: info.email,

@@ -1,0 +1,24 @@
+{% extends "layout.html.njk" %}
+{% block title %}Upraviť triedu{% endblock %}
+
+{% block content %}
+<h2>Upraviť triedu</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label>Ročník</label>
+        <input type="number" name="grade_year"
+               value="{{ classItem.grade_year }}"
+               class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Písmeno</label>
+        <input type="text" name="name_letter"
+               value="{{ classItem.name_letter }}"
+               class="form-control" required>
+    </div>
+
+    <button class="btn btn-primary">Uložiť zmeny</button>
+</form>
+{% endblock %}

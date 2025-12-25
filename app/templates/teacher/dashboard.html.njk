@@ -1,6 +1,14 @@
 {% extends "layout.html.njk" %}
 {% block title %}Učiteľ – dashboard{% endblock %}
 
+{% macro sortLink(col) %}
+    {% set nextDir = 'ASC' %}
+    {% if sort == col and dir == 'ASC' %}
+        {% set nextDir = 'DESC' %}
+    {% endif %}
+    ?sort={{ col }}&dir={{ nextDir }}
+{% endmacro %}
+
 {% block content %}
 
 <h2>Moje predmety v triedach</h2>
@@ -8,20 +16,38 @@
 <table class="table table-striped table-bordered">
     <thead>
         <tr>
-            <th>Trieda</th>
-            <th>Predmet</th>
+            <th>
+                <a href="{{ sortLink('grade_year') }}" class="text-decoration-none">
+                    Trieda
+                    {% if sort == 'grade_year' %}
+                        {% if dir == 'ASC' %}▲{% else %}▼{% endif %}
+                    {% endif %}
+                </a>
+            </th>
+
+            <th>
+                <a href="{{ sortLink('subject_name') }}" class="text-decoration-none">
+                    Predmet
+                    {% if sort == 'subject_name' %}
+                        {% if dir == 'ASC' %}▲{% else %}▼{% endif %}
+                    {% endif %}
+                </a>
+            </th>
+
             <th>Akcia</th>
         </tr>
     </thead>
+
     <tbody>
         {% for cs in subjects %}
         <tr>
             <td>{{ cs.grade_year }}.{{ cs.name_letter }}</td>
             <td>{{ cs.subject_name }}</td>
             <td>
-                <a href="/teacher/class-subject/{{ cs.class_subject_id }}" class="btn btn-primary">
-		    Zobraziť známky
-		</a>
+                <a href="/teacher/class-subject/{{ cs.class_subject_id }}"
+                   class="btn btn-primary btn-sm">
+                    Zobraziť známky
+                </a>
             </td>
         </tr>
         {% endfor %}

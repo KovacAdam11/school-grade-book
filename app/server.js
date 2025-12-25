@@ -49,9 +49,7 @@ app.use(flash());
 
 // sprístupnenie flash správ do templates
 app.use((req, res, next) => {
-    const flashMessages = req.flash();
-    res.locals.flash = flashMessages;
-    app.locals.flash = flashMessages;
+    res.locals.flash = req.flash();
     next();
 });
 
@@ -62,7 +60,7 @@ app.use((req, res, next) => {
 });
 
 // statické súbory
-app.use('/', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // routy
 app.use('/user', UserController);
