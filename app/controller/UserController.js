@@ -47,7 +47,6 @@ router.post('/login', async (req, res) => {
         role: user.role
     };
 
-    // 🔥 DÔLEŽITÉ: počkaj na uloženie session
     req.session.save(() => {
         if (user.role === 'ADMIN') return res.redirect('/admin');
         if (user.role === 'TEACHER') return res.redirect('/teacher');

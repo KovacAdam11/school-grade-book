@@ -1,10 +1,6 @@
 {% extends "layout.html.njk" %}
 {% block title %}Admin – Triedy{% endblock %}
 
-{% macro sortLink(col) %}
-  ?sort={{ col }}&dir={% if sort == col and dir == 'ASC' %}desc{% else %}asc{% endif %}
-{% endmacro %}
-
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -25,24 +21,8 @@
 <table class="table table-striped table-bordered align-middle">
     <thead class="table-light">
         <tr>
-            <th>
-                <a href="{{ sortLink('grade_year') }}" class="text-decoration-none">
-                    Trieda
-                    {% if sort == 'grade_year' %}
-                        {% if dir == 'ASC' %}▲{% else %}▼{% endif %}
-                    {% endif %}
-                </a>
-            </th>
-
-            <th class="text-center">
-                <a href="{{ sortLink('student_count') }}" class="text-decoration-none">
-                    Počet žiakov
-                    {% if sort == 'student_count' %}
-                        {% if dir == 'ASC' %}▲{% else %}▼{% endif %}
-                    {% endif %}
-                </a>
-            </th>
-
+            <th>Trieda</th>
+            <th class="text-center">Počet žiakov</th>
             <th style="width:160px">Akcie</th>
         </tr>
     </thead>

@@ -13,26 +13,12 @@ function requireTeacher(req, res) {
 }
 
 /**
- * Helper – bezpečný sort
- */
-function getSort(req, allowed, defaultCol) {
-    const sort = allowed[req.query.sort] || defaultCol;
-    const dir = req.query.dir === 'desc' ? 'DESC' : 'ASC';
-    return { sort, dir };
-}
-
-/**
  * Teacher dashboard – moje predmety
  */
 router.get('/', async (req, res) => {
     if (!requireTeacher(req, res)) return;
 
     const teacherId = req.session.user.id;
-
-    const { sort, dir } = getSort(req, {
-        grade_year: 'c.grade_year',
-        subject_name: 's.name'
-    }, 'c.grade_year');
 
     const [rows] = await dbPool.execute(
         `
@@ -45,15 +31,12 @@ router.get('/', async (req, res) => {
                 JOIN classes c ON c.id = cs.class_id
                 JOIN subjects s ON s.id = cs.subject_id
             WHERE cs.teacher_id = ?
-            ORDER BY ${sort} ${dir}, c.name_letter
         `,
         [teacherId]
     );
 
     res.render('teacher/dashboard.html.njk', {
-        subjects: rows,
-        sort,
-        dir
+        subjects: rows
     });
 });
 
@@ -65,25 +48,19 @@ router.get('/enrollment/:id/grades', async (req, res) => {
 
     const enrollmentId = Number(req.params.id);
 
-    const { sort, dir } = getSort(req, {
-        grade_value: 'grade_value',
-        graded_at: 'graded_at'
-    }, 'graded_at');
+
 
     const [grades] = await dbPool.execute(
         `
             SELECT grade_value, graded_at, note
             FROM grades
             WHERE enrollment_id = ?
-            ORDER BY ${sort} ${dir}, id DESC
         `,
         [enrollmentId]
     );
 
     res.render('teacher/grades_history.html.njk', {
-        grades,
-        sort,
-        dir
+        grades
     });
 });
 
@@ -117,12 +94,6 @@ router.get('/class-subject/:id', async (req, res) => {
         return res.redirect('/teacher');
     }
 
-    const { sort, dir } = getSort(req, {
-        last_name: 'u.last_name',
-        last_grade: 'last_grade',
-        last_graded_at: 'last_graded_at'
-    }, 'u.last_name');
-
     const [students] = await dbPool.execute(
         `
             SELECT
@@ -146,7 +117,6 @@ router.get('/class-subject/:id', async (req, res) => {
             FROM enrollments e
                 JOIN users u ON u.id = e.student_id
             WHERE e.class_subject_id = ?
-            ORDER BY ${sort} ${dir}, u.first_name
         `,
         [classSubjectId]
     );
@@ -154,8 +124,6 @@ router.get('/class-subject/:id', async (req, res) => {
     res.render('teacher/class_subject.html.njk', {
         classSubject: cs,
         students,
-        sort,
-        dir
     });
 });
 

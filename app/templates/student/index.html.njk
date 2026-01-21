@@ -2,11 +2,7 @@
 {% block title %}Moje známky{% endblock %}
 
 {% macro sortLink(col) %}
-    {% set nextDir = 'ASC' %}
-    {% if sort == col and dir == 'ASC' %}
-        {% set nextDir = 'DESC' %}
-    {% endif %}
-    ?sort={{ col }}&dir={{ nextDir }}
+  ?sort={{ col }}&dir={% if sort == col and dir == 'ASC' %}desc{% else %}asc{% endif %}
 {% endmacro %}
 
 {% block content %}

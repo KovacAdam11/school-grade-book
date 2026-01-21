@@ -33,10 +33,11 @@ router.get('/', async (req, res) => {
         FROM users u
                  JOIN roles r ON r.id = u.role_id
                  LEFT JOIN classes c ON c.id = u.class_id
-        ORDER BY r.code, u.username
     `);
 
-    res.render('admin/users.html.njk', { users });
+    res.render('admin/users.html.njk', {
+        users
+    });
 });
 
 /* =========================
@@ -255,11 +256,12 @@ router.get('/classes', async (req, res) => {
                  LEFT JOIN users u
                            ON u.class_id = c.id
                                AND u.role_id = (SELECT id FROM roles WHERE code='STUDENT')
-        GROUP BY c.id
-        ORDER BY c.grade_year, c.name_letter
+        GROUP BY c.id, c.grade_year, c.name_letter
     `);
 
-    res.render('admin/classes.html.njk', { classes });
+    res.render('admin/classes.html.njk', {
+        classes
+    });
 });
 
 /* =========================
@@ -279,7 +281,6 @@ router.get('/class-subjects', async (req, res) => {
                  JOIN classes c ON c.id = cs.class_id
                  JOIN subjects s ON s.id = cs.subject_id
                  JOIN users u ON u.id = cs.teacher_id
-        ORDER BY c.grade_year, c.name_letter, s.name
     `);
 
     const [classes] = await dbPool.execute(`SELECT * FROM classes`);
@@ -344,16 +345,38 @@ router.post('/subjects/:id/clear-assignments', async (req, res) => {
 router.post('/subjects/:id/clear-enrollments', async (req, res) => {
     if (!requireAdmin(req, res)) return;
 
-    const subjectId = req.params.id;
+    const subjectId = Number(req.params.id);
 
-    await dbPool.execute(`
-        DELETE e
-        FROM enrollments e
-        JOIN class_subjects cs ON cs.id = e.class_subject_id
-        WHERE cs.subject_id = ?
-    `, [subjectId]);
+    const conn = await dbPool.getConnection();
+    try {
+        await conn.beginTransaction();
 
-    res.json({ ok: true });
+        // zmaž známky pre enrollments patriace tomuto predmetu
+        await conn.execute(`
+            DELETE g
+            FROM grades g
+            JOIN enrollments e ON e.id = g.enrollment_id
+            JOIN class_subjects cs ON cs.id = e.class_subject_id
+            WHERE cs.subject_id = ?
+        `, [subjectId]);
+
+        // zmaž samotné zápisy (enrollments) pre tento predmet
+        await conn.execute(`
+            DELETE e
+            FROM enrollments e
+            JOIN class_subjects cs ON cs.id = e.class_subject_id
+            WHERE cs.subject_id = ?
+        `, [subjectId]);
+
+        await conn.commit();
+        return res.json({ ok: true });
+    } catch (err) {
+        await conn.rollback();
+        console.error(err);
+        return res.status(500).json({ ok: false, error: 'Nepodarilo sa zmazať zápisy žiakov.' });
+    } finally {
+        conn.release();
+    }
 });
 
 router.post('/class-subjects/:id/edit', async (req, res) => {
@@ -426,9 +449,6 @@ router.post('/class-subjects', async (req, res) => {
 router.get('/subjects', async (req, res) => {
     if (!requireAdmin(req, res)) return;
 
-    const sort = req.query.sort || 'name';
-    const dir = req.query.dir === 'DESC' ? 'DESC' : 'ASC';
-
     const [subjects] = await dbPool.execute(`
         SELECT
             s.id,
@@ -439,13 +459,10 @@ router.get('/subjects', async (req, res) => {
                 WHERE cs.subject_id = s.id
             ) AS usage_count
         FROM subjects s
-        ORDER BY s.name
     `);
 
     res.render('admin/subjects.html.njk', {
-        subjects,
-        sort,
-        dir
+        subjects
     });
 });
 

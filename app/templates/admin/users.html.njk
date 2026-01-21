@@ -1,10 +1,6 @@
 {% extends "layout.html.njk" %}
 {% block title %}Admin – používatelia{% endblock %}
 
-{% macro sortLink(col) %}
-  ?sort={{ col }}&dir={% if sort == col and dir == 'ASC' %}desc{% else %}asc{% endif %}
-{% endmacro %}
-
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -18,60 +14,12 @@
 <table class="table table-striped table-bordered align-middle">
     <thead class="table-light">
         <tr>
-            <th>
-                <a href="{{ sortLink('id') }}" class="text-decoration-none">
-                    ID
-                    {% if sort == 'id' %}
-                        {% if dir == 'ASC' %}▲{% else %}▼{% endif %}
-                    {% endif %}
-                </a>
-            </th>
-
-            <th>
-                <a href="{{ sortLink('username') }}" class="text-decoration-none">
-                    Username
-                    {% if sort == 'username' %}
-                        {% if dir == 'ASC' %}▲{% else %}▼{% endif %}
-                    {% endif %}
-                </a>
-            </th>
-
-            <th>
-                <a href="{{ sortLink('first_name') }}" class="text-decoration-none">
-                    Meno
-                    {% if sort == 'first_name' %}
-                        {% if dir == 'ASC' %}▲{% else %}▼{% endif %}
-                    {% endif %}
-                </a>
-            </th>
-
-            <th>
-                <a href="{{ sortLink('last_name') }}" class="text-decoration-none">
-                    Priezvisko
-                    {% if sort == 'last_name' %}
-                        {% if dir == 'ASC' %}▲{% else %}▼{% endif %}
-                    {% endif %}
-                </a>
-            </th>
-
-            <th>
-                <a href="{{ sortLink('role') }}" class="text-decoration-none">
-                    Rola
-                    {% if sort == 'role' %}
-                        {% if dir == 'ASC' %}▲{% else %}▼{% endif %}
-                    {% endif %}
-                </a>
-            </th>
-
-            <th>
-                <a href="{{ sortLink('grade_year') }}" class="text-decoration-none">
-                    Trieda
-                    {% if sort == 'grade_year' %}
-                        {% if dir == 'ASC' %}▲{% else %}▼{% endif %}
-                    {% endif %}
-                </a>
-            </th>
-
+            <th>ID</th>
+            <th>Username</th>
+            <th>Meno</th>
+            <th>Priezvisko</th>
+            <th>Rola</th>
+            <th>Trieda</th>
             <th style="width: 180px;">Akcie</th>
         </tr>
     </thead>
