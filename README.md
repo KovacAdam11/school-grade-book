@@ -27,10 +27,13 @@ Projekt je vytvorený ako záverečné zadanie.
 ---
 
 ### Spustenie aplikácie
-
+- Je potrebené prepnúť start.sh z CRLF na LF !!
+- Je potrebné si spraviť vlastný .env súbor z uvedeného examplu !!
+  
 ```bash
 docker compose up --build
 ```
+
 Po spustení je aplikácia dostupná na:
 
 http://localhost:3000 – webová aplikácia
